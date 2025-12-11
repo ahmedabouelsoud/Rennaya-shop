@@ -17,27 +17,13 @@
         <h2 class="fw-bold">OUR PRODUCT CATEGORIES</h2>
         <div class="bg-danger mx-auto" style="width: 50px; height: 3px;"></div>
       </div>
-      <div class="row g-4">
-        <div class="col-md-4" v-for="cat in categories" :key="cat.title">
-          <div class="position-relative overflow-hidden group">
-            <img :src="cat.img" class="w-100" style="height: 250px; object-fit: cover; filter: brightness(0.7);">
-            <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100">
-              <h4 class="fw-bold text-uppercase">{{ cat.title }}</h4>
-              <button class="btn btn-danger btn-sm mt-2">Browse</button>
-            </div>
-          </div>
-        </div>
-      </div>
+
     </section>
   </div>
 </template>
 
 <script setup>
-const categories = [
-  { title: 'Shop Sports Equipment', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=500' },
-  { title: 'Shop Swim Wear', img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=500' },
-  { title: 'Shop Hiking Shoes', img: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&q=80&w=500' }
-];
+
 </script>
 
 <style scoped>
