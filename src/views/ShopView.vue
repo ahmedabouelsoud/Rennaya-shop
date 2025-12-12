@@ -27,8 +27,8 @@
             <hr class="my-4 text-muted">
 
             <h5 class="fw-bold mb-3">Filter By Price</h5>
-            <label class="form-label text-muted small">Max Price: <span class="fw-bold text-dark">${{ maxPrice }}</span></label>
-            <input type="range" class="form-range text-danger" min="0" max="1000" v-model.number="maxPrice">
+            <label class="form-label text-muted small">Max Price: <span class="fw-bold text-dark">${{ maxPrice.toFixed(2) }}</span></label>
+            <input type="range" class="form-range text-danger" min="0" max="1000" step="10" v-model.number="maxPrice">
 
             <hr class="my-4 text-muted">
 
@@ -66,7 +66,13 @@
             <div class="col-md-4 col-sm-6" v-for="product in filteredProducts" :key="product.id">
               <div class="card h-100 border-0 shadow-sm text-center product-card overflow-hidden">
 
-                <div v-if="product.price < 100" class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill">SALE</div>
+                <div v-if="product.discount > 0"
+                     class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill">
+                  {{ product.discount }}% OFF
+                </div>
+                <div v-else-if="product.price < 100" class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill">
+                  SALE
+                </div>
 
                 <div class="card-img-top p-4 bg-light d-flex align-items-center justify-content-center position-relative image-container"
                   style="height: 250px;">
@@ -82,8 +88,17 @@
                 <div class="card-body d-flex flex-column">
                   <div class="mb-auto">
                     <h6 class="card-title fw-bold mt-1 text-truncate">{{ product.name }}</h6>
-                    <p class="card-text text-danger fw-bold fs-5">${{ product.price }}</p>
-                    <small class="text-muted text-uppercase" style="font-size: 0.75rem;">{{ product.Category}}</small>
+
+                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                        <p v-if="product.discount > 0" class="text-muted text-decoration-line-through mb-0" style="font-size: 0.9rem;">
+                            ${{ product.price.toFixed(2) }}
+                        </p>
+                        <p class="fw-bold fs-5 mb-0" :class="product.discount > 0 ? 'text-danger' : 'text-dark'">
+                            ${{ product.newPrice ? product.newPrice.toFixed(2) : product.price.toFixed(2) }}
+                        </p>
+                    </div>
+
+                    <small class="text-muted text-uppercase" style="font-size: 0.75rem;">{{ formatCategory(product.Category) }}</small>
                   </div>
                   <button @click="addToCart(product)" class="btn btn-outline-danger btn-sm w-100 rounded-0 mt-3 btn-hover-fill">
                     Add To Cart
@@ -103,25 +118,62 @@ import { ref, onMounted, computed } from 'vue';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
-// State Variables
+
 const products = ref([]);
 const loading = ref(true);
 const toastMessage = ref(null);
 
-// Filter States
-const categories = ['Footwear', 'Apparel', 'Gear', 'Sports'];
-const selectedCategories = ref([]); // مصفوفة لتخزين الفئات المختارة
-const maxPrice = ref(1000); // القيمة الابتدائية للفلتر
-const sortBy = ref('default'); // حالة الترتيب
 
-// Fetch Data
+const categories = ref([]);
+const selectedCategories = ref([]);
+
+const maxPrice = ref(1000);
+const sortBy = ref('default');
+
+
+const formatCategory = (cat) => {
+  if (!cat) return '';
+  return cat.charAt(0).toUpperCase() + cat.slice(1);
+};
+
+
+const calculatePriceWithDiscount = (price, discount) => {
+  const p = Number(price) || 0;
+  const d = Number(discount) || 0;
+  return d > 0 ? p * (1 - d / 100) : p;
+};
+
+
 const fetchProducts = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "products"));
-    products.value = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+
+    const loadedProducts = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+
+
+      const normalizedCategory = data.Category
+        ? String(data.Category).trim().toLowerCase()
+        : "uncategorized";
+
+      return {
+        id: doc.id,
+        ...data,
+        price: Number(data.price) || 0,
+        discount: Number(data.discount) || 0,
+        newPrice: data.newPrice
+          ? Number(data.newPrice)
+          : calculatePriceWithDiscount(data.price, data.discount),
+
+        Category: normalizedCategory
+      };
+    });
+
+    products.value = loadedProducts;
+
+
+    categories.value = [...new Set(loadedProducts.map(p => p.Category))];
+
   } catch (error) {
     console.error("Error fetching products:", error);
   } finally {
@@ -133,48 +185,41 @@ onMounted(() => {
   fetchProducts();
 });
 
-// --- Computed Property for Filtering & Sorting ---
-// هذه الدالة تقوم بعملية الفلترة والترتيب في المتصفح لحظياً
+
 const filteredProducts = computed(() => {
   let result = products.value;
 
-  // 1. Filter by Category
+
   if (selectedCategories.value.length > 0) {
     result = result.filter(item =>
-      // نتأكد من مطابقة الاسم (نستخدم includes للسماح بمرونة بسيطة)
-      item.Category && selectedCategories.value.includes(item.Category)
+      selectedCategories.value.includes(item.Category)
     );
   }
 
-  // 2. Filter by Price
-  result = result.filter(item => item.price <= maxPrice.value);
 
-  // 3. Sorting
+  result = result.filter(item => item.newPrice <= maxPrice.value);
+
   if (sortBy.value === 'low-high') {
-    result = [...result].sort((a, b) => a.price - b.price);
+    result = [...result].sort((a, b) => a.newPrice - b.newPrice);
   } else if (sortBy.value === 'high-low') {
-    result = [...result].sort((a, b) => b.price - a.price);
+    result = [...result].sort((a, b) => b.newPrice - a.newPrice);
   }
 
   return result;
 });
 
-// --- Interaction Functions ---
 
 const addToCart = (product) => {
-  // إظهار رسالة التنبيه
   toastMessage.value = `Added "${product.name}" to cart!`;
-
-  // إخفاء الرسالة بعد 3 ثواني
   setTimeout(() => {
     toastMessage.value = null;
   }, 3000);
 };
-
 </script>
 
+
 <style scoped>
-/* Hero Section */
+
 .hero-shop {
   position: relative;
 }
@@ -185,7 +230,7 @@ const addToCart = (product) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6); /* تغميق الخلفية قليلاً */
+  background: rgba(0, 0, 0, 0.6);
 }
 .hero-shop h1 {
   position: relative;
@@ -193,7 +238,7 @@ const addToCart = (product) => {
   letter-spacing: 2px;
 }
 
-/* Product Card Styling */
+
 .product-card {
   transition: all 0.3s ease;
   background: #fff;
@@ -203,7 +248,7 @@ const addToCart = (product) => {
   box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
 }
 
-/* Image Hover Zoom */
+
 .image-container {
   overflow: hidden;
 }
@@ -211,10 +256,10 @@ const addToCart = (product) => {
   transition: transform 0.5s ease;
 }
 .product-card:hover .product-img {
-  transform: scale(1.1); /* تكبير الصورة عند التحويم */
+  transform: scale(1.1);
 }
 
-/* Overlay Buttons */
+
 .overlay {
   position: absolute;
   bottom: -50px;
@@ -228,13 +273,13 @@ const addToCart = (product) => {
   opacity: 1;
 }
 
-/* Button Hover Effect */
+
 .btn-hover-fill:hover {
   background-color: #dc3545;
   color: white;
 }
 
-/* Tags Hover */
+
 .tag-hover {
   cursor: pointer;
   transition: background 0.2s;
