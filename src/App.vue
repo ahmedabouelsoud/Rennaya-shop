@@ -1,6 +1,6 @@
 <script setup>
-import Navbar from '@/components/layout/TheNavbar.vue';
-import Footer from '@/components/layout/TheFooter.vue';
+import Navbar from '@/components/layout/TheNavbar.vue'
+import Footer from '@/components/layout/TheFooter.vue'
 </script>
 
 <template>
@@ -14,11 +14,5 @@ import Footer from '@/components/layout/TheFooter.vue';
 </template>
 
 <style>
-Global accent color override
-:root {
-  --bs-primary: #dc3545; /* Red color from screenshots */
-  --bs-btn-primary-bg: #dc3545;
-  --bs-btn-primary-border-color: #dc3545;
-}
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+/* Global styles are now managed in assets/base.css */
 </style>

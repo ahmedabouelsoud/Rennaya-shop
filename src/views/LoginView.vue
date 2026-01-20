@@ -10,10 +10,22 @@
 
             <form @submit.prevent="signInWithEmail">
               <div class="mb-3">
-                <input v-model="email" type="email" class="form-control" placeholder="Email" required>
+                <input
+                  v-model="email"
+                  type="email"
+                  class="form-control"
+                  placeholder="Email"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <input v-model="password" type="password" class="form-control" placeholder="Password" required>
+                <input
+                  v-model="password"
+                  type="password"
+                  class="form-control"
+                  placeholder="Password"
+                  required
+                />
               </div>
               <div class="d-grid gap-2 mb-4">
                 <button type="submit" class="btn btn-dark btn-lg" :disabled="isLoading">
@@ -21,8 +33,7 @@
                 </button>
               </div>
             </form>
-
-            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -30,34 +41,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { auth } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth } from '@/firebase'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
-const router = useRouter();
-const email = ref('');
-const password = ref('');
-const error = ref(null);
-const isLoading = ref(false);
-
+const router = useRouter()
+const email = ref('')
+const password = ref('')
+const error = ref(null)
+const isLoading = ref(false)
 
 const signInWithEmail = async () => {
-  error.value = null;
-  isLoading.value = true;
+  error.value = null
+  isLoading.value = true
   try {
+    await signInWithEmailAndPassword(auth, email.value, password.value)
 
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-
-
-    router.push({ name: 'admin' });
+    router.push({ name: 'admin' })
   } catch (err) {
-
-    error.value = err.message.replace('Firebase: Error (auth/', '').replace(').', '').replace(/-/g, ' ');
-    console.error(err);
+    error.value = err.message
+      .replace('Firebase: Error (auth/', '')
+      .replace(').', '')
+      .replace(/-/g, ' ')
+    console.error(err)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
-
+}
 </script>

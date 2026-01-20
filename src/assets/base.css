@@ -1,0 +1,186 @@
+/* Global Design Tokens */
+:root {
+  --bs-primary: #dc3545;
+  --bs-secondary: #6c757d;
+  --bs-dark: #212529;
+  --bs-light: #f8f9fa;
+
+  --font-heading: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --body-bg: #ffffff;
+  --body-text: #212529;
+  --card-bg: #ffffff;
+  --nav-bg: #ffffff;
+  --nav-text: #212529;
+  --border-color: #dee2e6;
+  --input-bg: #ffffff;
+  --input-text: #212529;
+}
+
+[data-theme='dark'] {
+  --body-bg: #121212;
+  --body-text: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --nav-bg: #1e1e1e;
+  --nav-text: #e0e0e0;
+  --border-color: #333333;
+  --bs-light: #2c2c2c;
+  --bs-dark: #f8f9fa;
+  --input-bg: #2c2c2c;
+  --input-text: #e0e0e0;
+}
+
+/* Base Resets & Typography */
+body {
+  font-family: var(--font-body);
+  background-color: var(--body-bg);
+  color: var(--body-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  color: var(--body-text);
+}
+
+/* Utilities */
+.bg-body {
+  background-color: var(--body-bg) !important;
+}
+.text-body {
+  color: var(--body-text) !important;
+}
+
+/* Dark Mode Overrides for Bootstrap Utilities */
+[data-theme='dark'] .bg-white {
+  background-color: var(--card-bg) !important;
+  color: var(--body-text) !important;
+}
+
+[data-theme='dark'] .bg-light {
+  background-color: #2c2c2c !important;
+  color: var(--body-text) !important;
+}
+
+[data-theme='dark'] .text-muted {
+  color: #adb5bd !important;
+}
+
+[data-theme='dark'] .text-dark {
+  color: #f8f9fa !important;
+}
+
+[data-theme='dark'] .border {
+  border-color: var(--border-color) !important;
+}
+
+/* Component Overrides for Dark Mode */
+[data-theme='dark'] .card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--body-text);
+}
+
+[data-theme='dark'] .navbar {
+  background-color: var(--nav-bg) !important;
+}
+
+[data-theme='dark'] .navbar-brand {
+  color: var(--nav-text) !important;
+}
+
+[data-theme='dark'] .navbar-light .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme='dark'] .navbar-light .navbar-nav .nav-link:hover,
+[data-theme='dark'] .navbar-light .navbar-nav .nav-link.active {
+  color: #fff;
+}
+
+[data-theme='dark'] .dropdown-menu {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+[data-theme='dark'] .dropdown-item {
+  color: var(--body-text);
+}
+[data-theme='dark'] .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Button Overrides */
+[data-theme='dark'] .btn-outline-dark {
+  color: #f8f9fa;
+  border-color: #f8f9fa;
+}
+[data-theme='dark'] .btn-outline-dark:hover {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+[data-theme='dark'] .btn-light {
+  background-color: #444;
+  color: #fff;
+  border-color: #555;
+}
+[data-theme='dark'] .btn-light:hover {
+  background-color: #555;
+}
+
+/* Form Elements */
+[data-theme='dark'] .form-control,
+[data-theme='dark'] .form-select,
+[data-theme='dark'] .form-check-input {
+  background-color: var(--input-bg);
+  border-color: #444;
+  color: var(--input-text);
+}
+
+[data-theme='dark'] .form-control::placeholder {
+  color: #adb5bd;
+}
+
+[data-theme='dark'] .list-group-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--body-text);
+}
+
+/* Table Styles for Dark Mode */
+[data-theme='dark'] .table {
+  color: var(--body-text);
+  background-color: var(--card-bg);
+  --bs-table-bg: var(--card-bg);
+  --bs-table-color: var(--body-text);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .table > :not(caption) > * > * {
+  background-color: transparent;
+  color: var(--body-text);
+  border-color: var(--border-color);
+}
+
+/* Modal and Offcanvas if used */
+[data-theme='dark'] .modal-content,
+[data-theme='dark'] .offcanvas {
+  background-color: var(--card-bg);
+  color: var(--body-text);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
